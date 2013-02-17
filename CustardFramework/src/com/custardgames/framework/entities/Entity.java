@@ -2,30 +2,48 @@ package com.custardgames.framework.entities;
 
 import java.awt.Rectangle;
 
+import com.custardgames.framework.Game;
 import com.custardgames.framework.level.LevelHandler;
 
-public abstract class Entity implements EntityInterface
+public abstract class Entity
 {
 	public LevelHandler level;
+	
 	public float xCo;
 	public float yCo;
 	public int width;
 	public int height;
-	public int layer;
-	public boolean shouldTick = false;
+	
+	public boolean running = false;
 	public boolean shouldRender = false;
 	public boolean willBlock = false;
-	
-	public Entity()
-	{
-		
-	}
 	
 	public Entity(LevelHandler level)
 	{
 		this.level = level;
+		running = true;
 	}
-
+	
+	public int getCenterX()
+	{
+		return (int) (xCo+width/2);
+	}
+	
+	public int getCenterY()
+	{
+		return (int) (yCo+height/2);
+	}
+	
+	public float getPerSecond(float number)
+	{
+		return number/Game.ticksPerSecond;
+	}
+	
+	public float getTotalTicks(float number)
+	{
+		return number*Game.ticksPerSecond;
+	}
+	
 	public void setLocation(int x, int y)
 	{
 		this.xCo = x;
@@ -43,16 +61,6 @@ public abstract class Entity implements EntityInterface
 		this.width = width;
 		this.height = height;
 	}
-
-	public int getCenterX()
-	{
-		return (int) (xCo+width/2);
-	}
-	
-	public int getCenterY()
-	{
-		return (int) (yCo+height/2);
-	}
 	
 	public boolean intersects(Entity other)
 	{
@@ -65,5 +73,11 @@ public abstract class Entity implements EntityInterface
 		Rectangle hitbox = new Rectangle((int)xCo, (int)yCo, width, height);
 		return hitbox.intersects(other);
 	}
+	
+	public abstract void tick();
+	
+	public abstract void render();
+	
+	public abstract void handleCollision(Entity other, String direction);
 	
 }

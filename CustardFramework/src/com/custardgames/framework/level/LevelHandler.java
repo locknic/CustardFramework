@@ -1,92 +1,122 @@
 package com.custardgames.framework.level;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.custardgames.framework.Game;
-import com.custardgames.framework.entities.Entity;
 import com.custardgames.framework.entities.Player;
-import com.custardgames.framework.gfx.Background;
-import com.custardgames.framework.gfx.Camera;
+import com.custardgames.framework.gfx.CameraScreen;
 import com.custardgames.framework.input.InputHandler;
-import com.custardgames.framework.resources.LevelResources;
+import com.custardgames.framework.resources.ResourceManager;
+import com.custardgames.framework.sound.SoundHandler;
 
 public class LevelHandler
 {
 	public String path;
 	public boolean running;
-    public List<Entity> entities= new ArrayList<Entity>();
-    public LevelResources levelResources = new LevelResources();
-	public Camera cameraScreen = new Camera(this, Game.nativeWidth, Game.nativeHeight);
+	public int tickCount;
+
+	public LevelLayer backLayer;
+	public LevelLayer collisionLayer;
+	public LevelLayer frontLayer;
+
+	public CameraScreen graphics;
+	public SoundHandler soundHandler;
 	public InputHandler input;
-    
-    public LevelHandler(String path, InputHandler input)
-    {    	
-    	this.path = path;
-    	this.input = input;
-    	LevelLoader levelTiles = new LevelLoader(this);
-    	Player player = new Player(this);
-    	entities.add(new Background(this));
-        entities.addAll(levelTiles.getTiles());
-        entities.add(cameraScreen);
-        entities.add(player);
-        cameraScreen.setTarget(player);
-       
-    }
-    
-	public void start() 
+	
+	public Player player;
+	
+	public LevelHandler(String path, InputHandler input)
+	{
+		this.path = path;
+		this.input = input;
+		init();
+	}
+
+	public void init()
+	{
+		graphics = new CameraScreen(this, Game.nativeWidth, Game.nativeHeight);
+		soundHandler = new SoundHandler();
+		backLayer = new LevelLayer();
+		collisionLayer = new LevelLayer();
+		frontLayer = new LevelLayer();
+		player = new Player(this);
+		LevelLoader levelTiles = new LevelLoader(this);
+
+		backLayer.addAll(levelTiles.getFloor());
+		collisionLayer.addAll(levelTiles.getWall());
+		frontLayer.addAll(levelTiles.getRoof());
+
+		collisionLayer.add(player);
+		graphics.setTarget(player);
+		
+		ResourceManager.get_instance().addImage("screen-start", path+"/screen-start.png");
+		ResourceManager.get_instance().addImage("screen-end", path+"/screen-end.png");
+		
+		System.out.println("screen-start");
+		graphics.setImage("screen-start");
+		running = true;
+		tick();
+		render();
+		running = false;
+	}
+	
+	public void start()
 	{
 		running = true;
 	}
 
-	public void stop() 
+	public void stop()
 	{
+		soundHandler.unloadAll();
+		init();
+		graphics.setImage("screen-end");
+		running = true;
+		tick();
+		render();
 		running = false;
 	}
-	
-	public void tick() 
+
+	public void tick()
 	{
-    	if (running)
-    	{
-    		for (int l=1; l<=5; l++)
+		tickCount++;
+		if (running)
+		{
+			backLayer.tick(graphics);
+			collisionLayer.tick(graphics);
+			frontLayer.tick(graphics);
+			graphics.tick();
+			graphics.setStates(backLayer);
+			graphics.setStates(collisionLayer);
+			graphics.setStates(frontLayer);
+		}
+		else
+		{
+			if (input.down)
 			{
-	    		cameraScreen.setStates(entities);
-	    		for (int x=0; x<entities.size(); x++)
-		    	{
-	    			if (entities.get(x).layer == l)
-		    		{
-		    			if (entities.get(x).shouldTick)
-		    			{
-		    				entities.get(x).tick();
-		    			}
-		    		}
-		    	}
+				if (graphics.imageID.equals("screen-start"))
+				{
+					graphics.setImage("");
+					start();
+				}
+				else
+				{
+					graphics.setImage("screen-start");
+				}
 			}
-    	}
+		}
 	}
 
-	public BufferedImage render() 
+	public BufferedImage render()
 	{
 		if (running)
 		{
-			for (int l=1; l<=5; l++)
-			{
-		    	for (int x=0; x<entities.size(); x++)
-		    	{
-		    		if (entities.get(x).layer == l)
-		    		{
-			    		if (entities.get(x).shouldRender)
-			    		{
-			    			entities.get(x).render();
-			    		}
-		    		}
-		    	}
-			}
+			graphics.clearScreen();
+			backLayer.render();
+			collisionLayer.render();
+			frontLayer.render();
+			graphics.render();
 		}
-		return cameraScreen.getImage();
+		return graphics.getImage();
 	}
-    
-    
-    
+
 }

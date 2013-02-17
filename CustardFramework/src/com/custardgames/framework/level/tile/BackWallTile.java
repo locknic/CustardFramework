@@ -9,7 +9,6 @@ public class BackWallTile extends Tile
 	public BackWallTile(LevelHandler level) 
 	{
 		super(level);
-		layer = 2;
 	}
 
 	@Override
@@ -20,7 +19,7 @@ public class BackWallTile extends Tile
 	}
 
 	@Override
-	public void handleCollision(Entity other) 
+	public void handleCollision(Entity other, String direction) 
 	{
 		// TODO Auto-generated method stub
 		

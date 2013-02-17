@@ -7,7 +7,6 @@ public class FrontWallTile extends Tile {
 
 	public FrontWallTile(LevelHandler level) {
 		super(level);
-		layer = 4;
 	}
 
 	@Override
@@ -17,7 +16,7 @@ public class FrontWallTile extends Tile {
 	}
 
 	@Override
-	public void handleCollision(Entity other) {
+	public void handleCollision(Entity other, String direction) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -12,6 +12,8 @@ public class InputHandler implements KeyListener
     public boolean down;
     public boolean left;
     public boolean right;
+    public boolean z;
+    public boolean r;
     
     public InputHandler(Game game)
     {
@@ -34,11 +36,11 @@ public class InputHandler implements KeyListener
 
     private void toggle(KeyEvent e, boolean b) 
     {
-        if (e.getKeyCode()==KeyEvent.VK_UP) 
+        if (e.getKeyCode()==KeyEvent.VK_UP || e.getKeyCode()==KeyEvent.VK_C) 
         {
             up=b;
         }
-        if (e.getKeyCode()==KeyEvent.VK_DOWN) 
+        if (e.getKeyCode()==KeyEvent.VK_DOWN || e.getKeyCode()==KeyEvent.VK_X) 
         {
             down=b;
         }
@@ -50,6 +52,15 @@ public class InputHandler implements KeyListener
         {
             right=b;
         }
+        if (e.getKeyCode()==KeyEvent.VK_Z) 
+        {
+            z=b;
+        }
+        if (e.getKeyCode()==KeyEvent.VK_R) 
+        {
+            r=b;
+        }
+
     }
     public void releaseAll()
     {
